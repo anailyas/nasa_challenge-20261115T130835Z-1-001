@@ -1,0 +1,5 @@
+astronaut_id,astronaut_name,mission_role,mission_id,mission_day,age,device_ids,profile_status,registration_date
+AST-001,Cmdr. Elena Vasquez,Mission Commander,ARTEMIS-MARS-2031,1,42,DEV-001-TShirt;DEV-001-Watch;DEV-001-Radiation;DEV-001-Movement,active,2031-02-20
+AST-002,Dr. Marcus Chen,Flight Engineer / Medical Officer,ARTEMIS-MARS-2031,1,38,DEV-002-TShirt;DEV-002-Watch;DEV-002-Radiation;DEV-002-Movement,active,2031-02-20
+AST-003,Lt. Aisha Okafor,Payload Specialist,ARTEMIS-MARS-2031,1,35,DEV-003-TShirt;DEV-003-Watch;DEV-003-Radiation;DEV-003-Movement,active,2031-02-20
+AST-004,Dr. Yuki Tanaka,Science Officer,ARTEMIS-MARS-2031,1,40,DEV-004-TShirt;DEV-004-Watch;DEV-004-Radiation;DEV-004-Movement,active,2031-02-20

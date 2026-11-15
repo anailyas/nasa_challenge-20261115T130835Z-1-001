@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AI SPACE GUARDIAN · MISSION CONTROL</title>
+<style>
+  :root {
+    --bg:        #05070d;
+    --bg2:       #0a1222;
+    --panel:     #0b1424;
+    --panel2:    #0e1a2e;
+    --line:      #24385a;
+    --line-hot:  #3d6ca8;
+    --nasa:      #0b3d91;
+    --nasa-lt:   #5c93e0;
+    --nasa-glow: rgba(92,147,224,0.55);
+    --amber:     #ffab3d;
+    --red:       #ff5563;
+    --green:     #7fe3a0;
+    --text:      #dde8f5;
+    --text-dim:  #8fa6c2;
+    --text-mute: #5d7898;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(11,61,145,0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(92,147,224,0.1) 0%, transparent 50%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.25), transparent),
+      radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.25), transparent);
+    background-size: 550px 550px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+  }
+
+  .hud {
+    position: relative; z-index: 2;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 84px 1fr 34px;
+    grid-template-columns: 300px 1fr 400px;
+    grid-template-areas:
+      "top    top    top"
+      "left   center right"
+      "foot   foot   foot";
+    gap: 0;
+  }
+
+  /* top bar */
+  .topbar {
+    grid-area: top;
+    display: grid;
+    grid-template-columns: 300px 1fr 400px;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line-hot);
+    background: linear-gradient(180deg, rgba(11,20,36,0.9) 0%, rgba(5,7,13,0.95) 100%);
+    position: relative;
+  }
+  .topbar::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--nasa-lt), transparent);
+  }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand-patch {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid var(--nasa-lt);
+    background: radial-gradient(circle at 30% 30%, var(--nasa) 0%, #051638 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 0 16px var(--nasa-glow), inset 0 0 10px rgba(0,0,0,0.6);
+  }
+  .brand-patch::before {
+    content: "★"; color: var(--nasa-lt); font-size: 18px;
+    text-shadow: 0 0 8px var(--nasa-glow);
+  }
+  .brand-patch::after {
+    content: "";
+    position: absolute; inset: 4px;
+    border: 1px dashed rgba(92,147,224,0.55);
+    border-radius: 50%;
+    animation: spin 30s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .brand h1 {
+    font-size: 17px; font-weight: 700; letter-spacing: 5px;
+    color: #f0f6ff; text-transform: uppercase;
+  }
+  .brand small {
+    display: block; font-size: 11px; letter-spacing: 2px;
+    color: var(--text-dim); margin-top: 3px;
+    font-weight: 500; text-transform: uppercase;
+  }
+  .top-telemetry {
+    display: flex; gap: 48px;
+    justify-content: center; align-items: center;
+  }
+  .tele-item {
+    text-align: center; font-size: 10px; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+    font-weight: 500;
+  }
+  .tele-item b {
+    display: block; font-size: 17px; color: #f0f6ff;
+    font-weight: 600; letter-spacing: 2px; margin-top: 4px;
+    font-family: "Consolas", monospace;
+  }
+  .top-mission {
+    text-align: right; font-size: 10px; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+    line-height: 1.7; font-weight: 500;
+  }
+  .top-mission b {
+    color: var(--nasa-lt); font-weight: 600; letter-spacing: 2px;
+    font-size: 12px;
+  }
+
+  /* panel */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before, .panel::after {
+    content: ""; position: absolute;
+    width: 14px; height: 14px;
+    border: 1px solid var(--nasa-lt);
+    pointer-events: none;
+  }
+  .panel::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+  .panel::after  { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px 12px;
+    font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--nasa-lt);
+    border-bottom: 1px solid var(--line); font-weight: 600;
+  }
+  .panel-head .head-meta {
+    color: var(--text-dim); font-size: 11px; letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+
+  /* left */
+  .left {
+    grid-area: left;
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--line);
+  }
+  .ast-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .ast-list::-webkit-scrollbar { width: 4px; }
+  .ast-list::-webkit-scrollbar-thumb { background: var(--line-hot); }
+  .ast-row {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 48px 1fr 8px;
+    gap: 14px;
+    align-items: center;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .ast-row:hover { background: rgba(92,147,224,0.1); }
+  .ast-row.active {
+    background: rgba(92,147,224,0.2);
+    border-left-color: var(--nasa-lt);
+  }
+  .ast-row .helmet { width: 48px; height: 48px; }
+  .ast-row .meta { min-width: 0; }
+  .ast-row .aid {
+    font-family: "Consolas", monospace;
+    font-size: 11px; letter-spacing: 1.5px; color: var(--text-dim);
+    font-weight: 500;
+  }
+  .ast-row .nm {
+    font-size: 14px; color: #f0f6ff; letter-spacing: 0.5px; margin-top: 3px;
+    font-weight: 600; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ast-row .st {
+    font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px;
+    margin-top: 3px; text-transform: uppercase;
+  }
+  .ast-row .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+  }
+  .ast-row .dot.warn { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .ast-row .dot.danger { background: var(--red); box-shadow: 0 0 8px var(--red); animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+
+  /* center */
+  .center {
+    grid-area: center;
+    display: grid;
+    grid-template-rows: 1fr 260px;
+    border-right: 1px solid var(--line);
+    background: var(--panel2);
+    min-height: 0;
+    position: relative;
+  }
+  .vitals-section {
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .crew-header {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(180deg, rgba(11,20,36,0.55) 0%, transparent 100%);
+  }
+  .crew-header .who { display: flex; gap: 18px; align-items: center; }
+  .crew-header .helmet-lg { width: 64px; height: 64px; }
+  .crew-header .name {
+    font-size: 22px; letter-spacing: 3px;
+    color: #f0f6ff; font-weight: 700; text-transform: uppercase;
+  }
+  .crew-header .sub {
+    font-size: 12px; color: var(--text-dim); letter-spacing: 2px;
+    margin-top: 5px; text-transform: uppercase; font-weight: 500;
+  }
+  .crew-header .stamp {
+    text-align: right; font-size: 11px; color: var(--text-dim);
+    letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.7;
+    font-weight: 500;
+  }
+  .crew-header .stamp b {
+    color: var(--nasa-lt); font-size: 15px; font-weight: 600;
+    font-family: "Consolas", monospace; letter-spacing: 2px;
+  }
+  .readout-body {
+    flex: 1; padding: 22px 26px; overflow-y: auto;
+  }
+  .readout-body::-webkit-scrollbar { width: 4px; }
+  .readout-body::-webkit-scrollbar-thumb { background: var(--line-hot); }
+  .readout-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .readout-tile {
+    background: rgba(5,7,13,0.65);
+    border: 1px solid var(--line);
+    padding: 16px 18px 14px;
+    position: relative;
+  }
+  .readout-tile::before {
+    content: "";
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--nasa-lt);
+  }
+  .readout-tile.warn::before { background: var(--amber); }
+  .readout-tile.bad::before  { background: var(--red);   }
+  .readout-label {
+    font-size: 11px; letter-spacing: 1.5px; color: var(--text-dim);
+    text-transform: uppercase; margin-bottom: 10px;
+    display: flex; justify-content: space-between;
+    padding-right: 60px;
+    font-weight: 600;
+  }
+  .readout-label .tag {
+    color: var(--text-mute); font-family: "Consolas", monospace;
+    font-size: 10px; letter-spacing: 1px; font-weight: 500;
+  }
+  .readout-value {
+    font-family: "Consolas", monospace;
+    font-size: 28px; font-weight: 700;
+    color: #f0f6ff; letter-spacing: 1px;
+    line-height: 1; margin-bottom: 6px;
+  }
+  .readout-value.warn { color: var(--amber); }
+  .readout-value.bad  { color: var(--red);   }
+  .readout-unit {
+    font-size: 11px; color: var(--text-mute);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 4px; font-weight: 500;
+  }
+  .readout-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: "Consolas", monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    text-transform: uppercase;
+    background: rgba(127,227,160,0.1);
+    font-weight: 600;
+  }
+  .readout-badge.warn {
+    border-color: var(--amber); color: var(--amber);
+    background: rgba(255,171,61,0.12);
+  }
+  .readout-badge.bad {
+    border-color: var(--red); color: var(--red);
+    background: rgba(255,85,99,0.12);
+  }
+  .readout-badge.na {
+    border-color: var(--text-mute); color: var(--text-mute);
+    background: transparent;
+  }
+  .readout-analysis {
+    font-size: 12px; color: var(--text-dim);
+    margin-top: 8px; line-height: 1.4;
+    font-style: italic; font-weight: 400;
+  }
+  .readout-analysis.warn { color: var(--amber); }
+  .readout-analysis.bad  { color: var(--red);   }
+
+  /* AI bot */
+  .bot-section {
+    border-top: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    min-height: 0;
+    background: var(--panel);
+  }
+  .bot-log {
+    flex: 1; overflow-y: auto;
+    padding: 14px 22px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .bot-log::-webkit-scrollbar { width: 4px; }
+  .bot-log::-webkit-scrollbar-thumb { background: var(--line-hot); }
+  .bot-msg { margin-bottom: 12px; display: flex; gap: 12px; }
+  .bot-msg .avatar {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border: 1px solid var(--nasa-lt);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--nasa-lt); font-size: 13px;
+    background: rgba(11,61,145,0.25);
+    font-family: "Consolas", monospace;
+    font-weight: 700;
+  }
+  .bot-msg .body {
+    flex: 1; padding: 8px 14px;
+    background: rgba(11,20,36,0.65);
+    border-left: 3px solid var(--nasa-lt);
+    color: var(--text); font-size: 13px;
+    line-height: 1.5;
+  }
+  .bot-msg .body .who {
+    font-size: 10px; color: var(--nasa-lt); letter-spacing: 1.5px;
+    margin-bottom: 5px; text-transform: uppercase;
+    font-family: "Consolas", monospace;
+    font-weight: 600;
+  }
+  .bot-msg .body.warn { border-left-color: var(--amber); }
+  .bot-msg .body.warn .who { color: var(--amber); }
+  .bot-msg .body.bad  { border-left-color: var(--red);   }
+  .bot-msg .body.bad .who { color: var(--red); }
+  .bot-msg .body.ok   { border-left-color: var(--green); }
+  .bot-msg .body.ok .who { color: var(--green); }
+  .bot-status {
+    padding: 10px 22px;
+    border-top: 1px solid var(--line);
+    font-size: 11px; letter-spacing: 1.5px;
+    color: var(--text-dim); text-transform: uppercase;
+    display: flex; justify-content: space-between;
+    font-family: "Consolas", monospace;
+    font-weight: 500;
+  }
+  .bot-status .dot-live { color: var(--green); animation: blink 2s infinite; }
+
+  /* right */
+  .right {
+    grid-area: right;
+    display: flex; flex-direction: column;
+    background: var(--bg2);
+    position: relative;
+    overflow: hidden;
+  }
+  .astro-stage {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 1100px;
+    position: relative;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(11,61,145,0.4) 0%, transparent 65%),
+      var(--bg2);
+    min-height: 0;
+    overflow: hidden;
+  }
+  .astro-stage::before {
+    content: "";
+    position: absolute; left: 50%; top: 78%;
+    width: 320px; height: 320px;
+    border: 1px solid rgba(92,147,224,0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(70deg);
+    box-shadow: inset 0 0 40px rgba(92,147,224,0.18);
+    pointer-events: none;
+  }
+  .astro-stage::after {
+    content: "";
+    position: absolute; left: 50%; top: 78%;
+    width: 420px; height: 420px;
+    border: 1px dashed rgba(92,147,224,0.12);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(70deg);
+    animation: spin-flat 60s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes spin-flat { to { transform: translate(-50%,-50%) rotateX(70deg) rotate(360deg); } }
+
+  .astro-scanline {
+    position: absolute; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--nasa-lt), transparent);
+    opacity: 0.45;
+    animation: scan 5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 10;
+  }
+  @keyframes scan {
+    0%   { top: 8%; opacity: 0; }
+    20%  { opacity: 0.55; }
+    80%  { opacity: 0.55; }
+    100% { top: 92%; opacity: 0; }
+  }
+  .astro {
+    width: 150px;
+    height: 320px;
+    transform-style: preserve-3d;
+    animation: astro-rotate 22s linear infinite;
+    position: relative;
+    z-index: 2;
+  }
+  @keyframes astro-rotate {
+    from { transform: rotateY(0deg)   rotateX(-4deg); }
+    to   { transform: rotateY(360deg) rotateX(-4deg); }
+  }
+  .suit {
+    position: absolute;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(190,210,230,0.95) 0 6px,
+        rgba(150,175,200,0.95) 6px 8px),
+      linear-gradient(180deg, #cfdce8 0%, #96abc0 100%);
+    border: 1px solid #5a7290;
+    box-shadow:
+      inset 0 0 8px rgba(255,255,255,0.4),
+      0 0 6px rgba(92,147,224,0.4);
+  }
+  .helmet-suit {
+    width: 62px; height: 62px;
+    left: 50%; top: 8px;
+    transform: translateX(-50%);
+    border-radius: 50% 50% 46% 46%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9) 0%, rgba(210,225,240,0.65) 40%, #6a8299 100%);
+    border: 2px solid #8fa5bd;
+    box-shadow:
+      inset 0 0 14px rgba(255,255,255,0.6),
+      0 0 14px rgba(140,180,230,0.6);
+    z-index: 5;
+    position: absolute;
+  }
+  .helmet-visor {
+    position: absolute;
+    left: 50%; top: 52%;
+    transform: translate(-50%, -50%);
+    width: 42px; height: 30px;
+    border-radius: 50% 50% 45% 45%;
+    background:
+      radial-gradient(ellipse at 35% 30%, rgba(255,183,90,0.6) 0%, rgba(20,35,60,0.95) 45%, #05070d 100%);
+    border: 1px solid #5c93e0;
+    box-shadow:
+      inset 0 0 10px rgba(0,0,0,0.9),
+      0 0 8px rgba(92,147,224,0.6);
+  }
+  .helmet-visor::after {
+    content: "";
+    position: absolute;
+    left: 25%; top: 20%;
+    width: 12px; height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.9) 0%, transparent 70%);
+  }
+  .helmet-light {
+    position: absolute;
+    left: 50%; top: -6px;
+    transform: translateX(-50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 10px var(--amber), 0 0 20px rgba(255,171,61,0.6);
+    animation: helmet-blink 2.4s ease-in-out infinite;
+    z-index: 6;
+  }
+  @keyframes helmet-blink { 50% { opacity: 0.3; } }
+  .neck-ring {
+    position: absolute;
+    left: 50%; top: 66px;
+    transform: translateX(-50%);
+    width: 48px; height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #8fa5bd 0%, #4a5f78 100%);
+    border: 1px solid #2d4258;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
+    z-index: 4;
+  }
+  .torso {
+    position: absolute;
+    left: 50%; top: 76px;
+    transform: translateX(-50%);
+    width: 78px; height: 88px;
+    border-radius: 10px 10px 8px 8px;
+    z-index: 3;
+  }
+  .chest-module {
+    position: absolute;
+    left: 50%; top: 110px;
+    transform: translateX(-50%) translateZ(20px);
+    width: 34px; height: 34px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #2a3a52 0%, #141e2e 100%);
+    border: 1px solid var(--nasa-lt);
+    box-shadow:
+      0 0 8px var(--nasa-glow),
+      inset 0 0 6px rgba(0,0,0,0.8);
+    z-index: 8;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chest-module::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--nasa-lt);
+    box-shadow: 0 0 10px var(--nasa-lt), 0 0 18px var(--nasa-glow);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  .chest-module::after {
+    content: "";
+    position: absolute; inset: 4px;
+    border: 1px dashed rgba(92,147,224,0.5);
+    border-radius: 2px;
+  }
+  .shoulder {
+    position: absolute;
+    width: 34px; height: 26px;
+    border-radius: 50% 50% 8px 8px;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(190,210,230,0.95) 0 5px,
+        rgba(150,175,200,0.95) 5px 7px),
+      linear-gradient(180deg, #cfdce8 0%, #96abc0 100%);
+    border: 1px solid #5a7290;
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.4);
+    z-index: 2;
+  }
+  .shoulder-l { left: 4px;  top: 78px; transform: rotate(-8deg); }
+  .shoulder-r { right: 4px; top: 78px; transform: rotate(8deg);  }
+  .arm {
+    position: absolute;
+    width: 26px; height: 90px;
+    top: 92px;
+    border-radius: 8px;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(190,210,230,0.95) 0 8px,
+        rgba(150,175,200,0.95) 8px 10px),
+      linear-gradient(180deg, #cfdce8 0%, #96abc0 100%);
+    border: 1px solid #5a7290;
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.3);
+    z-index: 1;
+  }
+  .arm-l { left: -10px; top: 96px; transform: rotate(6deg);  }
+  .arm-r { right: -10px; top: 96px; transform: rotate(-6deg); }
+  .glove {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, #e0eaf5 0%, #96abc0 70%, #4a5f78 100%);
+    border: 1px solid #5a7290;
+    box-shadow: inset 0 0 4px rgba(255,255,255,0.4);
+    z-index: 2;
+  }
+  .glove-l { left: -12px; top: 178px; }
+  .glove-r { right: -12px; top: 178px; }
+  .belt {
+    position: absolute;
+    left: 50%; top: 158px;
+    transform: translateX(-50%);
+    width: 76px; height: 10px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #3d5170 0%, #1c2f4a 100%);
+    border: 1px solid #5c93e0;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.6), 0 0 4px var(--nasa-glow);
+    z-index: 4;
+  }
+  .leg {
+    position: absolute;
+    width: 30px; height: 100px;
+    top: 168px;
+    border-radius: 6px;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(190,210,230,0.95) 0 10px,
+        rgba(150,175,200,0.95) 10px 12px),
+      linear-gradient(180deg, #cfdce8 0%, #96abc0 100%);
+    border: 1px solid #5a7290;
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.3);
+    z-index: 1;
+  }
+  .leg-l { left: 42px; }
+  .leg-r { right: 42px; }
+  .boot {
+    position: absolute;
+    width: 38px; height: 24px;
+    top: 262px;
+    border-radius: 6px 6px 10px 10px;
+    background: linear-gradient(180deg, #3d5170 0%, #0b1424 100%);
+    border: 1px solid #5c93e0;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.8), 0 0 6px var(--nasa-glow);
+    z-index: 2;
+  }
+  .boot-l { left: 38px; }
+  .boot-r { right: 38px; }
+  .backpack {
+    position: absolute;
+    left: 50%; top: 78px;
+    transform: translateX(-50%) translateZ(-30px);
+    width: 70px; height: 90px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #3d5170 0%, #1c2f4a 100%);
+    border: 1px solid #5c93e0;
+    box-shadow:
+      inset 0 0 10px rgba(0,0,0,0.5),
+      0 0 8px rgba(92,147,224,0.4);
+    z-index: 0;
+  }
+  .backpack::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 8px;
+    transform: translateX(-50%);
+    width: 22px; height: 4px;
+    background: var(--nasa-lt);
+    box-shadow: 0 0 6px var(--nasa-lt);
+    border-radius: 2px;
+  }
+  .vest-chip {
+    position: absolute;
+    font-family: "Consolas", monospace;
+    font-size: 11px; letter-spacing: 1px;
+    padding: 5px 10px;
+    background: rgba(5,7,13,0.9);
+    border: 1px solid var(--line-hot);
+    color: var(--text-dim);
+    z-index: 15;
+    font-weight: 600;
+  }
+  .vest-chip b { color: var(--nasa-lt); font-weight: 700; margin-left: 6px; }
+  .vest-chip.tl { top: 14px;    left: 14px; }
+  .vest-chip.tr { top: 14px;    right: 14px; }
+  .vest-chip.bl { bottom: 80px; left: 14px; }
+  .vest-chip.br { bottom: 80px; right: 14px; }
+
+  /* footer */
+  .footer {
+    grid-area: foot;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 24px;
+    font-size: 10px; letter-spacing: 1.5px; color: var(--text-mute);
+    text-transform: uppercase;
+    border-top: 1px solid var(--line);
+    background: rgba(5,7,13,0.9);
+    font-weight: 500;
+  }
+  .footer .warning { color: var(--amber); }
+  .footer .live { color: var(--green); }
+  .footer .live::before { content: "● "; animation: blink 1.5s infinite; }
+
+  /* PREDICTION BANNER */
+  .prediction-banner {
+    position: absolute;
+    top: 84px; left: 300px; right: 400px;
+    z-index: 20;
+    padding: 14px 22px;
+    background: rgba(5,7,13,0.96);
+    border: 1px solid var(--line-hot);
+    border-left: 4px solid var(--nasa-lt);
+    display: none;
+    align-items: center;
+    gap: 22px;
+    font-size: 13px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.7);
+    margin: 8px 20px;
+  }
+  .prediction-banner.visible { display: flex; }
+  .prediction-banner.elevated {
+    border-left-color: var(--amber);
+    background: rgba(40,25,5,0.96);
+  }
+  .prediction-banner.high {
+    border-left-color: var(--amber);
+    background: rgba(55,32,5,0.96);
+    animation: banner-warn 2s ease-in-out infinite;
+  }
+  .prediction-banner.critical {
+    border-left-color: var(--red);
+    background: rgba(55,8,15,0.96);
+    animation: banner-crit 1s ease-in-out infinite;
+  }
+  @keyframes banner-warn {
+    50% { box-shadow: 0 6px 28px rgba(255,171,61,0.4); }
+  }
+  @keyframes banner-crit {
+    50% { box-shadow: 0 6px 36px rgba(255,85,99,0.6); }
+  }
+  .prediction-banner .pb-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border: 2px solid var(--nasa-lt);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+    font-family: "Consolas", monospace;
+    color: var(--nasa-lt);
+  }
+  .prediction-banner.elevated .pb-icon,
+  .prediction-banner.high     .pb-icon { color: var(--amber); border-color: var(--amber); }
+  .prediction-banner.critical .pb-icon { color: var(--red);   border-color: var(--red);   }
+  .prediction-banner .pb-content { flex: 1; }
+  .prediction-banner .pb-title {
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 700;
+    margin-bottom: 4px; color: var(--nasa-lt);
+  }
+  .prediction-banner.elevated .pb-title,
+  .prediction-banner.high     .pb-title { color: var(--amber); }
+  .prediction-banner.critical .pb-title { color: var(--red); }
+  .prediction-banner .pb-msg {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    line-height: 1.4;
+  }
+  .prediction-banner .pb-action {
+    font-size: 12px; color: var(--text-dim); margin-top: 4px;
+    font-style: italic;
+  }
+  .prediction-banner .pb-timing {
+    text-align: right;
+    font-family: "Consolas", monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    line-height: 1.7;
+  }
+  .prediction-banner .pb-timing b {
+    color: var(--nasa-lt); font-weight: 700;
+    display: block; font-size: 13px;
+  }
+
+  /* PREDICTION MINI CARD */
+  .predict-card {
+    position: absolute;
+    bottom: 14px; left: 14px; right: 14px;
+    background: rgba(5,7,13,0.94);
+    border: 1px solid var(--line-hot);
+    padding: 12px 16px;
+    z-index: 16;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px;
+  }
+  .predict-card .pc-label {
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+    font-weight: 600;
+  }
+  .predict-card .pc-value {
+    font-family: "Consolas", monospace;
+    font-size: 22px; font-weight: 700;
+    color: var(--nasa-lt); margin-top: 2px;
+  }
+  .predict-card .pc-value.warn { color: var(--amber); }
+  .predict-card .pc-value.bad  { color: var(--red);   }
+  .predict-card .pc-meta {
+    text-align: right; font-size: 10px; color: var(--text-dim);
+    letter-spacing: 1px; line-height: 1.5;
+    font-family: "Consolas", monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="hud">
+
+  <!-- TOP -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-patch"></div>
+      <div>
+        <h1>AI Space Guardian</h1>
+        <small>Mission Control · Crew Health Monitor</small>
+      </div>
+    </div>
+
+    <div class="top-telemetry">
+      <div class="tele-item">Mission<b>ARTEMIS·MARS</b></div>
+      <div class="tele-item">MET<b id="mission-day">DAY 01</b></div>
+      <div class="tele-item">UTC<b id="utc-clock">--:--:--</b></div>
+      <div class="tele-item">Crew<b>04 ACTIVE</b></div>
+    </div>
+
+    <div class="top-mission">
+      <div>Data Source</div>
+      <b>VIRTUAL SENSOR ARRAY</b>
+    </div>
+  </div>
+
+  <!-- LEFT -->
+  <div class="left panel">
+    <div class="panel-head">
+      <span>Crew Manifest</span>
+      <span class="head-meta" id="crew-count">04</span>
+    </div>
+    <div class="ast-list" id="ast-list"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+
+    <div class="prediction-banner" id="prediction-banner">
+      <div class="pb-icon" id="pb-icon">!</div>
+      <div class="pb-content">
+        <div class="pb-title" id="pb-title">PREDICTIVE ALERT</div>
+        <div class="pb-msg"   id="pb-msg">—</div>
+        <div class="pb-action" id="pb-action"></div>
+      </div>
+      <div class="pb-timing">
+        <div>EARTH RECEIVES AT</div>
+        <b id="pb-earth-at">—</b>
+        <div id="pb-delay">—</div>
+      </div>
+    </div>
+
+    <div class="vitals-section">
+      <div class="crew-header">
+        <div class="who">
+          <div class="helmet-lg" id="vitals-helmet"></div>
+          <div>
+            <div class="name" id="vitals-name">Awaiting Selection</div>
+            <div class="sub" id="vitals-role">—</div>
+          </div>
+        </div>
+        <div class="stamp">
+          <div>Last Telemetry</div>
+          <b id="vitals-stamp">--:--:--</b>
+        </div>
+      </div>
+
+      <div class="readout-body">
+        <div class="readout-grid" id="vitals-grid"></div>
+      </div>
+    </div>
+
+    <div class="bot-section">
+      <div class="panel-head">
+        <span>Guardian AI · Analysis</span>
+        <span class="head-meta">v0.2</span>
+      </div>
+      <div class="bot-log" id="bot-log"></div>
+      <div class="bot-status">
+        <span>◉ Telemetry Analysis</span>
+        <span class="dot-live">● Active</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right panel">
+    <div class="panel-head">
+      <span>Biometric Suit · Live</span>
+      <span class="head-meta" id="vest-sub">STANDBY</span>
+    </div>
+    <div class="astro-stage">
+      <div class="astro-scanline"></div>
+
+      <div class="vest-chip tl">HR <b id="chip-hr">—</b></div>
+      <div class="vest-chip tr">SpO₂ <b id="chip-spo2">—</b></div>
+      <div class="vest-chip bl">TEMP <b id="chip-temp">—</b></div>
+      <div class="vest-chip br">RAD <b id="chip-rad">—</b></div>
+
+      <div class="astro">
+        <div class="backpack"></div>
+        <div class="suit leg leg-l"></div>
+        <div class="suit leg leg-r"></div>
+        <div class="boot boot-l"></div>
+        <div class="boot boot-r"></div>
+        <div class="suit arm arm-l"></div>
+        <div class="suit arm arm-r"></div>
+        <div class="glove glove-l"></div>
+        <div class="glove glove-r"></div>
+        <div class="shoulder shoulder-l"></div>
+        <div class="shoulder shoulder-r"></div>
+        <div class="suit torso"></div>
+        <div class="belt"></div>
+        <div class="chest-module"></div>
+        <div class="neck-ring"></div>
+        <div class="helmet-suit">
+          <div class="helmet-visor"></div>
+        </div>
+        <div class="helmet-light"></div>
+      </div>
+
+      <div class="predict-card">
+        <div>
+          <div class="pc-label">Collapse Risk</div>
+          <div class="pc-value" id="pc-risk">—</div>
+        </div>
+        <div class="pc-meta">
+          <div id="pc-class">—</div>
+          <div id="pc-health">—</div>
+          <div id="pc-local">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="warning">⚠ All data synthetic · Predictions simulated · Not medically validated</div>
+    <div class="live" id="live-status">Connecting</div>
+  </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+const REFRESH_MS = 5000;
+const HELMET_COLORS = {
+  "AST-001": "#5c93e0",
+  "AST-002": "#ffab3d",
+  "AST-003": "#7fe3a0",
+  "AST-004": "#ff5563",
+};
+let selectedAstronaut = "AST-001";
+let cache = { profiles: [], latest: {}, alerts: [] };
+let lastPrediction = null;
+
+function tickClock() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, "0");
+  document.getElementById("utc-clock").textContent =
+    `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+}
+setInterval(tickClock, 1000); tickClock();
+
+function helmetSVG(color, size = 48) {
+  return `
+    <svg viewBox="0 0 40 40" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 3 C10 3 6 10 6 18 L6 26 C6 32 12 37 20 37 C28 37 34 32 34 26 L34 18 C34 10 30 3 20 3 Z"
+            fill="none" stroke="${color}" stroke-width="1.6"/>
+      <ellipse cx="20" cy="19" rx="11" ry="8"
+               fill="${color}" opacity="0.18"
+               stroke="${color}" stroke-width="1.2"/>
+      <ellipse cx="17" cy="17" rx="3" ry="1.4" fill="${color}" opacity="0.75"/>
+      <circle cx="20" cy="30" r="2.5" fill="none" stroke="${color}" stroke-width="1.2"/>
+    </svg>`;
+}
+
+function renderAstronautList() {
+  const list = document.getElementById("ast-list");
+  list.innerHTML = cache.profiles.map(p => {
+    const aid = p.astronaut_id;
+    const latest = cache.latest[aid] || {};
+    const status = latest.sensor_status || "ok";
+    const dotCls = status === "ok" ? "" :
+                   ["malfunction","corrupted"].includes(status) ? "danger" : "warn";
+    const color = HELMET_COLORS[aid] || "#5c93e0";
+    return `
+      <div class="ast-row ${aid === selectedAstronaut ? 'active' : ''}" data-aid="${aid}">
+        <div class="helmet">${helmetSVG(color, 48)}</div>
+        <div class="meta">
+          <div class="aid">${aid}</div>
+          <div class="nm">${p.astronaut_name}</div>
+          <div class="st">${p.mission_role}</div>
+        </div>
+        <div class="dot ${dotCls}"></div>
+      </div>`;
+  }).join("");
+
+  list.querySelectorAll(".ast-row").forEach(row => {
+    row.addEventListener("click", () => {
+      selectedAstronaut = row.dataset.aid;
+      renderAstronautList();
+      renderVitals();
+      renderPrediction(selectedAstronaut);
+      addBotMessage(`Crew member <b>${selectedAstronaut}</b> selected. Telemetry stream active.`, "ok");
+    });
+  });
+
+  document.getElementById("crew-count").textContent =
+    String(cache.profiles.length).padStart(2, "0");
+}
+
+function assess(sensor, a, b) {
+  const num = v => (v == null || v === "" || isNaN(parseFloat(v))) ? null : parseFloat(v);
+  const A = num(a), B = num(b);
+
+  if (A === null) {
+    return { cls: "", badge: "N/A", analysis: "No reading" };
+  }
+
+  switch (sensor) {
+    case "hr":
+      if (A < 50)       return { cls: "warn", badge: "WARN", analysis: "Low — bradycardia range" };
+      if (A < 60)       return { cls: "warn", badge: "WARN", analysis: "Slightly low" };
+      if (A <= 100)     return { cls: "",     badge: "OK",   analysis: "Normal resting range" };
+      if (A <= 120)     return { cls: "warn", badge: "WARN", analysis: "Elevated — activity or stress" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "Tachycardic — high" };
+    case "spo2":
+      if (A >= 97)      return { cls: "",     badge: "OK",   analysis: "Excellent oxygen saturation" };
+      if (A >= 95)      return { cls: "",     badge: "OK",   analysis: "Normal saturation" };
+      if (A >= 92)      return { cls: "warn", badge: "WARN", analysis: "Mildly low — monitor" };
+      if (A >= 88)      return { cls: "bad",  badge: "CRIT", analysis: "Hypoxemia — concerning" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "Severe hypoxemia" };
+    case "bp":
+      if (B === null)   return { cls: "",     badge: "N/A",  analysis: "No reading" };
+      if (A < 90 || B < 60) return { cls: "warn", badge: "WARN", analysis: "Low blood pressure" };
+      if (A < 120 && B < 80) return { cls: "", badge: "OK", analysis: "Optimal range" };
+      if (A < 130 && B < 85) return { cls: "", badge: "OK", analysis: "Normal range" };
+      if (A < 140 || B < 90) return { cls: "warn", badge: "WARN", analysis: "Elevated — prehypertensive" };
+      if (A < 160 || B < 100) return { cls: "bad", badge: "CRIT", analysis: "Hypertensive range" };
+      return { cls: "bad", badge: "CRIT", analysis: "Stage 2 hypertension" };
+    case "temp":
+      if (A < 35.5)     return { cls: "bad",  badge: "CRIT", analysis: "Hypothermic" };
+      if (A < 36.0)     return { cls: "warn", badge: "WARN", analysis: "Low normal" };
+      if (A <= 37.5)    return { cls: "",     badge: "OK",   analysis: "Normal core temperature" };
+      if (A <= 38.0)    return { cls: "warn", badge: "WARN", analysis: "Low-grade fever" };
+      if (A <= 39.0)    return { cls: "bad",  badge: "CRIT", analysis: "Fever — elevated" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "High fever" };
+    case "br":
+      if (A < 10)       return { cls: "warn", badge: "WARN", analysis: "Slow — monitor" };
+      if (A <= 20)      return { cls: "",     badge: "OK",   analysis: "Normal resting rate" };
+      if (A <= 25)      return { cls: "warn", badge: "WARN", analysis: "Elevated" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "Tachypnea — high" };
+    case "rad":
+      if (A < 0.5)      return { cls: "",     badge: "OK",   analysis: "Background — nominal" };
+      if (A < 1.0)      return { cls: "",     badge: "OK",   analysis: "Low exposure" };
+      if (A < 3.0)      return { cls: "warn", badge: "WARN", analysis: "Elevated exposure" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "High radiation — take cover" };
+    case "cum":
+      if (A < 200)      return { cls: "",     badge: "OK",   analysis: "Well within daily limit" };
+      if (A < 500)      return { cls: "",     badge: "OK",   analysis: "Within daily limit" };
+      if (A < 1000)     return { cls: "warn", badge: "WARN", analysis: "Approaching mission limit" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "Mission limit exceeded" };
+    case "muscle":
+      if (A >= 75)      return { cls: "",     badge: "OK",   analysis: "Strong performance" };
+      if (A >= 60)      return { cls: "",     badge: "OK",   analysis: "Normal performance" };
+      if (A >= 45)      return { cls: "warn", badge: "WARN", analysis: "Declining — needs exercise" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "Low — muscle loss risk" };
+    case "stress":
+      if (A < 30)       return { cls: "",     badge: "OK",   analysis: "Relaxed" };
+      if (A < 55)       return { cls: "",     badge: "OK",   analysis: "Normal load" };
+      if (A < 75)       return { cls: "warn", badge: "WARN", analysis: "Elevated stress" };
+      return              { cls: "bad",  badge: "CRIT", analysis: "High stress — needs rest" };
+    case "activity": {
+      const s = (a || "").toLowerCase();
+      if (s.includes("sleep"))   return { cls: "", badge: "OK", analysis: "Resting / sleep phase" };
+      if (s.includes("rest"))    return { cls: "", badge: "OK", analysis: "Resting state" };
+      if (s.includes("walk"))    return { cls: "", badge: "OK", analysis: "Light movement" };
+      if (s.includes("exercis")) return { cls: "", badge: "OK", analysis: "Exercise — good for muscle" };
+      if (s.includes("work"))    return { cls: "", badge: "OK", analysis: "Working inside spacecraft" };
+      return                       { cls: "", badge: "OK", analysis: s || "—" };
+    }
+    case "sleep": {
+      const sl = (a || "").toLowerCase();
+      if (sl.includes("asleep")) return { cls: "", badge: "OK", analysis: "Sleep phase — rest cycle" };
+      if (sl.includes("awake"))  return { cls: "", badge: "OK", analysis: "Awake" };
+      return                       { cls: "", badge: "OK", analysis: sl || "—" };
+    }
+    case "sensor":
+      if (a === "ok")             return { cls: "",     badge: "OK",   analysis: "All sensors reporting" };
+      if (a === "disconnected")   return { cls: "warn", badge: "WARN", analysis: "Device disconnected" };
+      if (a === "malfunction")    return { cls: "bad",  badge: "CRIT", analysis: "Hardware malfunction" };
+      if (a === "corrupted")      return { cls: "bad",  badge: "CRIT", analysis: "Data corruption detected" };
+      if (a === "missing")        return { cls: "warn", badge: "WARN", analysis: "Missing readings" };
+      return                       { cls: "",     badge: "N/A",  analysis: a || "—" };
+  }
+  return { cls: "", badge: "—", analysis: "" };
+}
+
+function renderVitals() {
+  const aid = selectedAstronaut;
+  const profile = cache.profiles.find(p => p.astronaut_id === aid) || {};
+  const d = cache.latest[aid] || {};
+  const color = HELMET_COLORS[aid] || "#5c93e0";
+
+  document.getElementById("vitals-helmet").innerHTML = helmetSVG(color, 64);
+  document.getElementById("vitals-name").textContent = (profile.astronaut_name || "Awaiting Selection");
+  document.getElementById("vitals-role").textContent = profile.mission_role || "—";
+  document.getElementById("vitals-stamp").textContent = (d.timestamp || "").slice(11, 19) || "--:--:--";
+
+  const hr = d.heart_rate_bpm, spo2 = d.spo2_percent;
+  const sbp = d.systolic_bp_mmhg, dbp = d.diastolic_bp_mmhg;
+  const temp = d.body_temperature_c, br = d.breathing_rate_bpm;
+  const rad = d.radiation_dose_rate_usv_h, cum = d.cumulative_radiation_dose_usv;
+  const act = d.activity_level, sleep = d.sleep_status;
+  const stress = d.stress_indicator, muscle = d.muscle_performance_score;
+
+  const tiles = [
+    { label: "Heart Rate",     tag: "T-SHIRT",   value: hr,     unit: "BPM",   ...assess("hr", hr) },
+    { label: "SpO₂",           tag: "T-SHIRT",   value: spo2,   unit: "%",     ...assess("spo2", spo2) },
+    { label: "Blood Pressure", tag: "T-SHIRT",   value: `${sbp ?? "—"}/${dbp ?? "—"}`, unit: "mmHg", ...assess("bp", sbp, dbp) },
+    { label: "Body Temp",      tag: "T-SHIRT",   value: temp,   unit: "°C",    ...assess("temp", temp) },
+    { label: "Breathing",      tag: "T-SHIRT",   value: br,     unit: "/min",  ...assess("br", br) },
+    { label: "Rad Dose Rate",  tag: "RADIATION", value: rad,    unit: "μSv/h", ...assess("rad", rad) },
+    { label: "Cum. Radiation", tag: "RADIATION", value: cum,    unit: "μSv",   ...assess("cum", cum) },
+    { label: "Muscle Perf.",   tag: "MOVEMENT",  value: muscle, unit: "0–100", ...assess("muscle", muscle) },
+    { label: "Stress",         tag: "WATCH",     value: stress, unit: "0–100", ...assess("stress", stress) },
+    { label: "Activity",       tag: "MOVEMENT",  value: (act || "—").replace(/_/g," "), unit: "", ...assess("activity", act) },
+    { label: "Sleep State",    tag: "WATCH",     value: sleep || "—", unit: "", ...assess("sleep", sleep) },
+    { label: "Sensor Status",  tag: "SYSTEM",    value: (d.sensor_status || "ok").toUpperCase(), unit: "", ...assess("sensor", d.sensor_status || "ok") },
+  ];
+
+  document.getElementById("vitals-grid").innerHTML = tiles.map(t => `
+    <div class="readout-tile ${t.cls}">
+      <div class="readout-label"><span>${t.label}</span><span class="tag">${t.tag}</span></div>
+      <span class="readout-badge ${t.cls || (t.badge === 'N/A' ? 'na' : '')}">${t.badge || "—"}</span>
+      <div class="readout-value ${t.cls}">${fmt(t.value)}</div>
+      <div class="readout-unit">${t.unit || "&nbsp;"}</div>
+      <div class="readout-analysis ${t.cls}">${t.analysis || ""}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("vest-sub").textContent = aid + " · LIVE";
+  document.getElementById("chip-hr").textContent   = (hr ?? "—") + " BPM";
+  document.getElementById("chip-spo2").textContent = (spo2 ?? "—") + " %";
+  document.getElementById("chip-temp").textContent = (temp ?? "—") + " °C";
+  document.getElementById("chip-rad").textContent  = (rad ?? "—") + " μSv/h";
+}
+
+function fmt(v) {
+  if (v == null || v === "") return "—";
+  return v;
+}
+
+function fmtTime(iso) {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, "0");
+    return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} UTC`;
+  } catch { return iso; }
+}
+
+async function renderPrediction(aid) {
+  try {
+    const p = await fetch(`${API}/astronauts/${aid}/predict?phase=mars_mid`).then(r => r.json());
+    lastPrediction = p;
+
+    const riskEl   = document.getElementById("pc-risk");
+    const classEl  = document.getElementById("pc-class");
+    const healthEl = document.getElementById("pc-health");
+    const localEl  = document.getElementById("pc-local");
+
+    riskEl.textContent = p.collapse_risk + " / 100";
+    riskEl.className = "pc-value " +
+      (p.collapse_class === "CRITICAL" || p.collapse_class === "HIGH" ? "bad" :
+       p.collapse_class === "ELEVATED" ? "warn" : "");
+
+    classEl.textContent  = "CLASS · " + p.collapse_class;
+    healthEl.textContent = "HEALTH · " + p.health_score + " (" + p.health_class + ")";
+    localEl.textContent  = p.should_warn_local_crew ? "⚑ LOCAL WARN ACTIVE" : "✓ NOMINAL";
+
+    const banner  = document.getElementById("prediction-banner");
+    const icon    = document.getElementById("pb-icon");
+    const title   = document.getElementById("pb-title");
+    const msg     = document.getElementById("pb-msg");
+    const action  = document.getElementById("pb-action");
+    const earthAt = document.getElementById("pb-earth-at");
+    const delay   = document.getElementById("pb-delay");
+
+    if (p.collapse_class === "LOW") {
+      banner.className = "prediction-banner";
+    } else {
+      const lvl = p.collapse_class === "CRITICAL" ? "critical" :
+                  p.collapse_class === "HIGH"     ? "high"     : "elevated";
+      banner.className = "prediction-banner visible " + lvl;
+      icon.textContent   = lvl === "elevated" ? "i" : "!";
+      title.textContent  = "PREDICTIVE ALERT · " + p.collapse_class + " · " + aid;
+      msg.textContent    = p.primary_concern;
+      action.textContent = "▸ " + p.recommended_action;
+      earthAt.textContent = fmtTime(p.earth_receives_at);
+      delay.textContent   = "~" + Math.round(p.comm_delay_seconds / 60) + " min round-trip";
+    }
+  } catch (err) {
+    console.warn("prediction fetch failed:", err);
+  }
+}
+
+function addBotMessage(text, tone = "info") {
+  const log = document.getElementById("bot-log");
+  const msg = document.createElement("div");
+  msg.className = "bot-msg";
+  msg.innerHTML = `
+    <div class="avatar">&gt;</div>
+    <div class="body ${tone}">
+      <div class="who">GUARDIAN · ${new Date().toLocaleTimeString()}</div>
+      <div>${text}</div>
+    </div>`;
+  log.appendChild(msg);
+  log.scrollTop = log.scrollHeight;
+  while (log.children.length > 18) log.removeChild(log.firstChild);
+}
+
+function botAnalyze() {
+  const d = cache.latest[selectedAstronaut] || {};
+  const aid = selectedAstronaut;
+  const lines = [];
+  let tone = "ok";
+
+  if (d.heart_rate_bpm > 100) { lines.push(`Heart rate elevated: ${d.heart_rate_bpm} BPM — above resting range.`); tone = "warn"; }
+  if (d.spo2_percent != null && d.spo2_percent < 95) { lines.push(`SpO₂ below nominal: ${d.spo2_percent}% — monitor respiration.`); tone = "warn"; }
+  if (d.body_temperature_c > 37.5) { lines.push(`Body temperature ${d.body_temperature_c}°C — elevated.`); tone = "warn"; }
+  if (d.radiation_dose_rate_usv_h > 1) { lines.push(`Radiation dose rate ${d.radiation_dose_rate_usv_h} μSv/h — elevated exposure.`); tone = "warn"; }
+  if (d.sensor_status && d.sensor_status !== "ok") { lines.push(`Sensor status: ${d.sensor_status.toUpperCase()} — check device.`); tone = "bad"; }
+
+  if (lastPrediction && lastPrediction.astronaut_id === aid && lastPrediction.collapse_class !== "LOW") {
+    const p = lastPrediction;
+    lines.push(`<b>Predicted collapse risk:</b> ${p.collapse_risk}/100 (${p.collapse_class}). Earth notified in ~${Math.round(p.comm_delay_seconds/60)} min.`);
+    tone = p.collapse_class === "CRITICAL" ? "bad" : "warn";
+  }
+
+  if (lines.length === 0) {
+    lines.push(`Nominal. HR ${d.heart_rate_bpm ?? "—"} BPM · SpO₂ ${d.spo2_percent ?? "—"}% · Temp ${d.body_temperature_c ?? "—"}°C.`);
+  }
+  addBotMessage(`<b>${aid}</b> — ${lines.join(" ")}`, tone);
+}
+
+let lastReadingKey = "";
+
+async function refresh() {
+  const live = document.getElementById("live-status");
+  try {
+    const [profiles, alerts] = await Promise.all([
+      fetch(`${API}/astronauts`).then(r => r.json()),
+      fetch(`${API}/alerts`).then(r => r.json()),
+    ]);
+    cache.profiles = profiles;
+    cache.alerts = alerts;
+
+    const results = await Promise.all(
+      profiles.map(p => fetch(`${API}/astronauts/${p.astronaut_id}/latest`)
+        .then(r => r.json()).catch(() => ({})))
+    );
+    profiles.forEach((p, i) => { cache.latest[p.astronaut_id] = results[i]; });
+
+    renderAstronautList();
+    renderVitals();
+    await renderPrediction(selectedAstronaut);
+
+    const key = JSON.stringify(cache.latest[selectedAstronaut]);
+    if (key !== lastReadingKey) {
+      lastReadingKey = key;
+      botAnalyze();
+    }
+
+    live.textContent = "Live · " + new Date().toLocaleTimeString();
+    live.style.color = "";
+  } catch (err) {
+    live.textContent = "Offline — backend not running";
+    live.style.color = "#ff5563";
+  }
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

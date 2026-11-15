@@ -1,0 +1,22 @@
+device_id,astronaut_id,device_type,device_name,connection_status,installation_date,data_source
+DEV-001-TShirt,AST-001,TShirt,Cmdr. Elena Vasquez TShirt Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-001-Watch,AST-001,Watch,Cmdr. Elena Vasquez Watch Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-001-Radiation,AST-001,Radiation,Cmdr. Elena Vasquez Radiation Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-001-Movement,AST-001,Movement,Cmdr. Elena Vasquez Movement Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-002-TShirt,AST-002,TShirt,Dr. Marcus Chen TShirt Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-002-Watch,AST-002,Watch,Dr. Marcus Chen Watch Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-002-Radiation,AST-002,Radiation,Dr. Marcus Chen Radiation Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-002-Movement,AST-002,Movement,Dr. Marcus Chen Movement Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-003-TShirt,AST-003,TShirt,Lt. Aisha Okafor TShirt Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-003-Watch,AST-003,Watch,Lt. Aisha Okafor Watch Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-003-Radiation,AST-003,Radiation,Lt. Aisha Okafor Radiation Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-003-Movement,AST-003,Movement,Lt. Aisha Okafor Movement Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-004-TShirt,AST-004,TShirt,Dr. Yuki Tanaka TShirt Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-004-Watch,AST-004,Watch,Dr. Yuki Tanaka Watch Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-004-Radiation,AST-004,Radiation,Dr. Yuki Tanaka Radiation Wearable (Virtual),connected,2031-02-25,virtual_simulator
+DEV-004-Movement,AST-004,Movement,Dr. Yuki Tanaka Movement Wearable (Virtual),connected,2031-02-25,virtual_simulator
+ENV-O2,,Environment,Cabin Oxygen Sensor,connected,2031-02-25,virtual_simulator
+ENV-TEMP,,Environment,Cabin Temperature Sensor,connected,2031-02-25,virtual_simulator
+ENV-PRESS,,Environment,Cabin Pressure Sensor,connected,2031-02-25,virtual_simulator
+ENV-HUM,,Environment,Cabin Humidity Sensor,connected,2031-02-25,virtual_simulator
+ENV-AIR,,Environment,Air Quality Sensor,connected,2031-02-25,virtual_simulator

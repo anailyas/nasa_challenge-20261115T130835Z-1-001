@@ -1,0 +1,29 @@
+alert_id,timestamp,astronaut_id,device_id,sensor_name,observed_value,expected_reference,anomaly_type,scenario_label,simulated_severity,is_simulated
+ALT-2f3ceb4e27,2031-03-01T16:41:55,AST-001,DEV-001-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-3e88e6eb82,2031-03-01T16:42:55,AST-001,DEV-001-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-85c192d598,2031-03-01T12:29:00,AST-001,DEV-001-Radiation,radiation_dose_rate,,0.05-1.0 uSv/h,equipment_malfunction,simulated_anomaly,high,True
+ALT-1e50c05a10,2031-03-01T08:01:50,AST-001,DEV-001-TShirt,heart_rate,999.0,60-100 bpm,corrupted_reading,simulated_anomaly,medium,True
+ALT-42a989cc28,2031-03-01T01:57:15,AST-001,DEV-001-TShirt,spo2_percent,88.081,95-100 %,unusual_sensor_reading,simulated_anomaly,medium,True
+ALT-0111feb65a,2031-03-01T13:33:25,AST-001,DEV-001-Movement,movement_indicator,,0-120 sensor units,missing_measurement,simulated_anomaly,low,True
+ALT-e876d8aa50,2031-03-01T12:52:55,AST-001,DEV-001-Watch,sleep_quality_score,,0-100,sensor_disconnection,simulated_anomaly,low,True
+ALT-7f7fb23720,2031-03-01T10:10:15,AST-002,DEV-002-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-c67eb2e3cd,2031-03-01T22:28:20,AST-002,DEV-002-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-815ef7f97e,2031-03-01T12:18:35,AST-002,DEV-002-Radiation,radiation_dose_rate,,0.05-1.0 uSv/h,equipment_malfunction,simulated_anomaly,high,True
+ALT-f564647edf,2031-03-01T10:21:30,AST-002,DEV-002-TShirt,heart_rate,999.0,60-100 bpm,corrupted_reading,simulated_anomaly,medium,True
+ALT-23e0cf72b3,2031-03-01T14:59:35,AST-002,DEV-002-TShirt,spo2_percent,87.869,95-100 %,unusual_sensor_reading,simulated_anomaly,medium,True
+ALT-dfd9c8eff5,2031-03-01T04:36:35,AST-002,DEV-002-Movement,movement_indicator,,0-120 sensor units,missing_measurement,simulated_anomaly,low,True
+ALT-89cf1a6652,2031-03-01T01:32:20,AST-002,DEV-002-Watch,sleep_quality_score,,0-100,sensor_disconnection,simulated_anomaly,low,True
+ALT-bef2dd1941,2031-03-01T10:59:20,AST-003,DEV-003-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-aa997e2ef0,2031-03-01T09:51:40,AST-003,DEV-003-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-71c8970405,2031-03-01T21:19:35,AST-003,DEV-003-Radiation,radiation_dose_rate,,0.05-1.0 uSv/h,equipment_malfunction,simulated_anomaly,high,True
+ALT-bc5c54fbf8,2031-03-01T14:40:50,AST-003,DEV-003-TShirt,heart_rate,999.0,60-100 bpm,corrupted_reading,simulated_anomaly,medium,True
+ALT-b7385f7d40,2031-03-01T13:05:05,AST-003,DEV-003-TShirt,spo2_percent,87.833,95-100 %,unusual_sensor_reading,simulated_anomaly,medium,True
+ALT-14fa78c93f,2031-03-01T05:48:05,AST-003,DEV-003-Movement,movement_indicator,,0-120 sensor units,missing_measurement,simulated_anomaly,low,True
+ALT-4d7b635796,2031-03-01T18:00:05,AST-003,DEV-003-Watch,sleep_quality_score,,0-100,sensor_disconnection,simulated_anomaly,low,True
+ALT-ef1754ac85,2031-03-01T01:15:45,AST-004,DEV-004-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-20616b1750,2031-03-01T14:19:55,AST-004,DEV-004-TShirt,heart_rate,,60-100 bpm,sensor_disconnection,simulated_anomaly,medium,True
+ALT-6d288883fe,2031-03-01T15:28:30,AST-004,DEV-004-Radiation,radiation_dose_rate,,0.05-1.0 uSv/h,equipment_malfunction,simulated_anomaly,high,True
+ALT-e7cb9b9a54,2031-03-01T17:27:05,AST-004,DEV-004-TShirt,heart_rate,999.0,60-100 bpm,corrupted_reading,simulated_anomaly,medium,True
+ALT-9cab3101f8,2031-03-01T14:36:10,AST-004,DEV-004-TShirt,spo2_percent,88.191,95-100 %,unusual_sensor_reading,simulated_anomaly,medium,True
+ALT-19c3517d8c,2031-03-01T16:11:35,AST-004,DEV-004-Movement,movement_indicator,,0-120 sensor units,missing_measurement,simulated_anomaly,low,True
+ALT-673aaa5843,2031-03-01T05:19:45,AST-004,DEV-004-Watch,sleep_quality_score,,0-100,sensor_disconnection,simulated_anomaly,low,True
